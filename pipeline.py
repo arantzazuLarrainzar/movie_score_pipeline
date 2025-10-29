@@ -39,6 +39,8 @@ class DataPipeline:
         version of the dataset with the new information given by the providers.
         update(): updates the dataset with the information given by the different
         providers.
+        get(movie_title, release_year): returns the information about the movie
+        with the title `movie_title` and released in the year `release_year`. 
     """
     # attributes
     output_file_path: str = "data/output.csv"
@@ -204,4 +206,60 @@ class DataPipeline:
         return combined_df
 
     def update(self):
-        pass
+        """
+        This method updates the file in which the movie data is saved. For
+        that, it first ingests the data from the different providers, combines
+        it with the old version of the database into a pandas.DataFrames, and
+        saves the new version into the file.
+        """
+        # ingest data
+        new_data: pd.DataFrame = self.__ingest()
+        try:
+            # get data from memory and combines it with the ingested information
+            old_data: pd.DataFrame = pd.read_csv(
+                self.output_file_path, index_col=["movie_title", "release_year"]
+            )
+            new_data = self.__combine(old_data, new_data)
+        except pd.errors.EmptyDataError:
+            # the file is empty
+            print("The file is empty, so it will be completely overwritten by"\
+                  " the new data.")
+        except FileNotFoundError:
+            # the file does not exist
+            print("The file does not exists, so a new file will be created "\
+                  "with the new information.")
+        finally:
+            # save the new version into the output file
+            new_data.to_csv(self.output_file_path)
+
+    def get(self, movie_title: str, release_year: int) -> pd.Series:
+        """
+        This method returns the information of the movie with the title
+        `movie_title` and released in the year `released_year`.
+
+        Parameters:
+            movie_title (str): name of the movie to look for.
+            release_year (int): year in which the movie is released.
+        
+        Returns:
+            pandas.Series: object containing the information related to the
+            movie. If the movie does not exist in the database, an empty
+            object is returned.
+        """
+        # get the information of the database
+        try:
+            data: pd.DataFrame = pd.read_csv("data/output.csv", index_col=["movie_title", "release_year"])
+        except pd.errors.EmptyDataError:
+            # the file is empty
+            print("The file is empty.")
+            return pd.Series([], dtype=float)
+        except FileNotFoundError:
+            # the file does not exist
+            print("The file does not exists.")
+            return pd.Series([], dtype=float)
+
+        # check if the movie is there
+        if (movie_title, release_year) in data.index:
+            return data.loc[(movie_title, release_year), :]
+        # return an empty object because the movie is not there
+        return pd.Series([], dtype=float)
