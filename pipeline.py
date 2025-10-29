@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 class DataPipeline:
     """Movie Score Data Pipeline
@@ -23,15 +23,17 @@ class DataPipeline:
         uploads the financial data of the movies monthly. 
     
     Methods:
-    __transform(df, column_map): this method standarizes the given dataframe,
-    `df`, by modifying the column names according to the `column_map`, if it is
-    given, and setting the columns `movie_title` and `release_year` as index.
-    __provider1(): returns the data given by the first provider in a pandas
-    DataFrame.
-    __provider2(): returns the data given by the second provider in a pandas
-    DataFrame.
-    __provider3(): returns the data given by the third provider in a pandas
-    DataFrame.
+        __transform(df, column_map): standarizes the given dataframe, `df`, by
+        modifying the column names according to the `column_map`, if it is
+        given, and setting the columns `movie_title` and `release_year` as index.
+        __provider1(): returns the data given by the first provider in a pandas
+        DataFrame.
+        __provider2(): returns the data given by the second provider in a pandas
+        DataFrame.
+        __provider3(): returns the data given by the third provider in a pandas
+        DataFrame.
+        __ingest(): extracts data from the providers and returns a DataFrame that
+        maintains a combination of the data, solving the possible conflicts.
     """
     # attributes
     output_file_path: str = "data/output.csv"
@@ -132,4 +134,33 @@ class DataPipeline:
         ### combine data into one dataframe
         data: pd.DataFrame = df_file1.join([df_file2, df_file3])
         # load
+        return data
+
+    def __ingest(self) -> List[pd.DataFrame]:
+        """
+        This method extracts data from different providers and returns
+        a DataFrame that maintains a combination of the data. Since
+        there is a column that conflicts between two providers, care
+        is taken to ensure that no errors occur.
+
+        Returns:
+            pandas.DataFrame: object containing all data obtained by
+            different providers.
+        """
+        # ingest data from the different providers
+        df_prov1: pd.DataFrame = self.__provider1()
+        df_prov2: pd.DataFrame = self.__provider2()
+        df_prov3: pd.DataFrame = self.__provider3()
+        # solve the conflicts before merging all in one
+        conflict_col: pd.Series = df_prov2["domestic_box_office_gross"].copy()
+        for indx, elem in df_prov3["domestic_box_office_gross"].items():
+            if indx not in df_prov2.index:
+                conflict_col[indx] = [elem]
+        # combine the datasets taking into account the conflict
+        data: pd.DataFrame = df_prov1.join([
+            df_prov2.drop("domestic_box_office_gross", axis=1), df_prov3.drop("domestic_box_office_gross", axis=1)
+        ])
+        # data = self.__transform(data)
+        data["domestic_box_office_gross"] = conflict_col
+        # return the resulted DataFrame cleaned
         return data
