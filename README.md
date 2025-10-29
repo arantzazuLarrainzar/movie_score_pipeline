@@ -63,3 +63,4 @@ The application is turning off.
 - [x] Establish an architecture for the project.
 - [x] Implement the test methods.
 - [x] Implement the needed methods for the project.
+- [x] Implement the app to access the different options.
