@@ -34,6 +34,11 @@ class DataPipeline:
         DataFrame.
         __ingest(): extracts data from the providers and returns a DataFrame that
         maintains a combination of the data, solving the possible conflicts.
+        __combine(first_df, second_df): returns a combination of both pandas
+        DataFrame provided as parameters. This method is used to combine the old
+        version of the dataset with the new information given by the providers.
+        update(): updates the dataset with the information given by the different
+        providers.
     """
     # attributes
     output_file_path: str = "data/output.csv"
@@ -164,3 +169,39 @@ class DataPipeline:
         data["domestic_box_office_gross"] = conflict_col
         # return the resulted DataFrame cleaned
         return data
+
+    def __combine(
+        self, first_df: pd.DataFrame, second_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        This method combines the elements that are in the first pandas.DataFrame
+        with the second DataFrame, building a unique DataFrame that contains all
+        the elements.
+        
+        Parameters:
+            first_df (pandas.DataFrame): one of the pandas.DataFrame that must
+            be combined with the other, making sure that the elements are not
+            repeated.
+            second_df (pandas.DataFrame): the other pandas.DataFrame that must
+            be combined.
+        
+        Returns:
+            pandas.DataFrame: object containing the information of both 
+            DataFrames (`first_df` and `second_df`), by making sure that no
+            elements are repeated. 
+        """
+        combined_df = first_df.copy()
+        for indx, film_data in second_df.iterrows():
+            if indx not in first_df.index:
+                # film_data is not in the first dataframe
+                combined_df.loc[indx, :] = film_data
+            else:
+                # film_data is in the first dataframe, check if there are any
+                # empty field
+                for indx_col_empty in first_df.columns[first_df.loc[indx].isna()]:
+                    # fill the empty fields with the values of the second dataframe
+                    combined_df.loc[indx, indx_col_empty] = second_df.loc[
+                        indx, indx_col_empty]
+        return combined_df
+
+    def update(self):
+        pass

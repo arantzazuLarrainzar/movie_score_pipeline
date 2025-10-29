@@ -46,15 +46,15 @@ class TestPipeline(unittest.TestCase):
         cls.df_comb = pd.DataFrame({
             "movie_title": ["Inception", "The Dark Knight", "Parasite"],
             "release_year": [2010, 2008, 2019],
-            "critic_score_percentage": [87.0, 94.0, 99.0],
+            "critic_score_percentage": [87, 94, 99],
             "top_critic_score": [8.1, 8.6, 9.5],
-            "total_critic_reviews_counted": [450.0, 350.0, 475.0],
+            "total_critic_reviews_counted": [450, 350, 475],
             "audience_average_score": [9.1, 9.4, 9.0],
-            "total_audience_ratings": [1500000.0, 2200000.0, 800000.0],
+            "total_audience_ratings": [1500000, 2200000, 800000],
             "international_box_office_gross": [535700000, 469700000, None],
             "production_budget_usd": [160000000, 185000000, None],
             "marketing_spend_usd": [100000000, 150000000, None],
-            "domestic_box_office_gross": [292576195.0, 533345358.0, 53369749.0]
+            "domestic_box_office_gross": [292576195, 533345358, 53369749]
         })
         cls.df_comb.set_index(["movie_title", "release_year"], inplace=True)
 
@@ -145,6 +145,182 @@ class TestPipeline(unittest.TestCase):
         df_returned = pipe._DataPipeline__ingest()
         # check if each of the elements are equal
         pd.testing.assert_frame_equal(df_expected, df_returned)
+
+    def test_combine(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when there is no information in the
+        database.
+        """
+        # prepare parameters for the com    bine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [], columns=["col1", "col2", "col3"], dtype=float)
+        second_df: pd.DataFrame = pd.DataFrame(
+            [[0, 1, 2], [3, 4, 5], [6, 7, 8]], columns=["col1", "col2", "col3"],
+            dtype=float
+        )
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, second_df)
+    
+    def test_combine2(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when the providers do not provide new
+        information.
+        """
+        # prepare parameters for the combine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [[0, 1, 2], [3, 4, 5], [6, 7, 8]], columns=["col1", "col2", "col3"]
+        )
+        second_df: pd.DataFrame = pd.DataFrame(
+            [], columns=["col1", "col2", "col3"])
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, first_df)
+
+    def test_combine3(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when the database and the providers have
+        information, and none of the movies are equal.
+        """
+        # prepare parameters for the combine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87, 8.1], ["The Dark Knight", 94, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        first_df.set_index("title", inplace=True)
+
+        second_df: pd.DataFrame = pd.DataFrame(
+            [["Parasite", 99, 9.5], ["Toy Story 2", 68, 7.5]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        second_df.set_index("title", inplace=True)
+
+        complete_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87.0, 8.1], ["The Dark Knight", 94.0, 8.6],
+             ["Parasite", 99.0, 9.5], ["Toy Story 2", 68.0, 7.5]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        complete_df.set_index("title", inplace=True)
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, complete_df)
+
+    def test_combine4(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when the database and the providers have
+        information, and some of the movies are equal.
+        """
+        # prepare parameters for the combine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87, 8.1], ["The Dark Knight", 94, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        first_df.set_index("title", inplace=True)
+
+        second_df: pd.DataFrame = pd.DataFrame(
+            [["Parasite", 99, 9.5], ["The Dark Knight", 94, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        second_df.set_index("title", inplace=True)
+
+        complete_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87.0, 8.1], ["The Dark Knight", 94.0, 8.6],
+             ["Parasite", 99.0, 9.5]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        complete_df.set_index("title", inplace=True)
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, complete_df)
+    
+    def test_combine5(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when the database and the providers have
+        information, and some of the movies are equal. This case is different
+        to the previous one because the database has an empty space that can be
+        filled in with the information given by the provider. 
+        """
+        # prepare parameters for the combine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87, 8.1], ["The Dark Knight", None, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        first_df.set_index("title", inplace=True)
+
+        second_df: pd.DataFrame = pd.DataFrame(
+            [["Parasite", 99, 9.5], ["The Dark Knight", 94, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        second_df.set_index("title", inplace=True)
+
+        complete_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87.0, 8.1], ["The Dark Knight", 94.0, 8.6],
+             ["Parasite", 99.0, 9.5]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        complete_df.set_index("title", inplace=True)
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, complete_df)
+    
+    def test_combine6(self):
+        """
+        Testing the method `__combine` that is in charge of combining the
+        information that is currently saved in the database and the new one
+        that is received from the providers. This case checks the correct
+        functionality of the method when the database and the providers have
+        information, some of the movies are equal, and both have an empty
+        space. 
+        """
+        # prepare parameters for the combine method
+        first_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87, 8.1], ["The Dark Knight", None, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        first_df.set_index("title", inplace=True)
+
+        second_df: pd.DataFrame = pd.DataFrame(
+            [["Parasite", 99, 9.5], ["The Dark Knight", None, 8.6]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        second_df.set_index("title", inplace=True)
+
+        complete_df: pd.DataFrame = pd.DataFrame(
+            [["Inception", 87.0, 8.1], ["The Dark Knight", None, 8.6],
+             ["Parasite", 99.0, 9.5]],
+            columns=["title", "critic_score_percentage", "top_critic_score"]
+        )
+        complete_df.set_index("title", inplace=True)
+        # try combine method and check the result
+        pipe = DataPipeline()
+        result: pd.DataFrame = pipe._DataPipeline__combine(first_df, second_df)
+        # check if both dataframes are equal
+        pd.testing.assert_frame_equal(result, complete_df)
 
     def test_update(self):
         """
