@@ -3,7 +3,7 @@
 ## About the project
 This project is an application that consists in two parts, a first that is a pipeline that ingests, cleans, standarizes and combines movie data from different providers, and a second one that allows the user to query information of a movie.
 
-Currently the application ingests data from three different providers, but it is implemented in a way that is possible to add new methods for the extraction of data of new providers or modifying the current ones if the format changes.
+Currently the application ingests data from three different providers, but it is implemented in a way that is possible to add new methods for the extraction of data of new providers or modifying the current ones if the format changes. If there is a new provider, it is only necessary to implement the method that would read from this source and modify the `__ingest` method to ensure that it executes the new method and obtains the data from this new provider. In the other case, if a provider changes its format, only the method that reads from this source must be modified. 
 
 ## Built with
 This application was implemented with the language python and the library used is `pandas`.
