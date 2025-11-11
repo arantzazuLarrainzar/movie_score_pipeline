@@ -16,16 +16,18 @@ class TestFileIO(unittest.TestCase):
         from an existing file.
         """
         bytes_content = b"hello world!"
-        with tempfile.TemporaryFile(mode="w") as fp:
-            fp.write("hello world")
-            read_content = FileIO().read_file(fp.name)
+        with self.assertLogs() as captured:
+            read_content = FileIO().read_file("tests/data/read_test_method.csv")
         assert bytes_content == read_content
-    
+        self.assertEqual(len(captured.records), 1)
+        self.assertEqual(
+            captured.records[0].getMessage(),
+            "The file in 'tests/data/read_test_method.csv' has been read.")
+
     def test_read_non_existing_file(self):
         """
-        This method checks if the function `read_file` returns a byte object
-        from file that do not exist. In this case, the method `read_file`
-        should return a None object.
+        This method checks if the function `read_file` returns a None object
+        from a file that do not exist.
         """
         # read the non-existing file
         with self.assertLogs() as captured:
@@ -38,6 +40,23 @@ class TestFileIO(unittest.TestCase):
             "The file in './non_existing_file.csv' does not exist.")
         assert read_content is None
     
+    def test_read_non_access_allowed(self):
+        """
+        This method checks if the function `read_file` returns a None object
+        from a file that can not be accessed, because the user has not
+        permissions.
+        """
+        # read the non-existing file
+        with self.assertLogs() as captured:
+            read_content = FileIO().read_file("tests/data/non_permissions.csv")
+        # check if the method returns a None object and sends the proper logs
+        # messages
+        self.assertEqual(len(captured.records), 1)
+        self.assertEqual(
+            captured.records[0].getMessage(),
+            "The file in 'tests/data/non_permissions.csv' can not be accessed.")
+        assert read_content is None
+    
     def test_write_new_file(self):
         """
         This method checks if the method `write_csv` in FileIO saves a
@@ -45,10 +64,10 @@ class TestFileIO(unittest.TestCase):
         """
         to_save_obj = pd.DataFrame({"feat1": [0, 1, 2], "feat2": [4, 5, 6]})
         # save the DataFrame object
-        FileIO().write_csv("./data/write_test_method_new_file.csv", to_save_obj)
+        FileIO().write_csv("tests/data/write_test_method_new_file.csv", to_save_obj)
         # read the saved information and remove the created file
-        saved_object = pd.read_csv("./data/write_test_method_new_file.csv")
-        os.remove("./data/write_test_method_new_file.csv")
+        saved_object = pd.read_csv("tests/data/write_test_method_new_file.csv")
+        os.remove("tests/data/write_test_method_new_file.csv")
         # test the DataFrame object is equal to the saved object
         pd.testing.assert_frame_equal(to_save_obj, saved_object)
     
@@ -59,9 +78,9 @@ class TestFileIO(unittest.TestCase):
         """
         to_save_obj = pd.DataFrame({"feat1": [0, 1, 2], "feat2": [4, 5, 6]})
         # save the DataFrame object
-        FileIO().write_csv("./data/write_test_method_old_file.csv", to_save_obj)
+        FileIO().write_csv("tests/data/write_test_method_old_file.csv", to_save_obj)
         # read the saved information and test if it is equal to the DataFrame object
-        saved_object = pd.read_csv("./data/write_test_method_old_file.csv")
+        saved_object = pd.read_csv("tests/data/write_test_method_old_file.csv")
         pd.testing.assert_frame_equal(to_save_obj, saved_object)
 
 
