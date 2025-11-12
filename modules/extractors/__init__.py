@@ -1,0 +1,3 @@
+from .extractor_provider1 import ExtractorProvider1
+from .extractor_provider2 import ExtractorProvider2
+from .extractor_provider3 import ExtractorProvider3
