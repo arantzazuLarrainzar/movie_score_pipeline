@@ -1,6 +1,5 @@
 /__pycache__
 
 /tests/__pycache__
-/tests/data/non_permissions.csv
-
+/tests/data/fileio_non_permissions.csv
 /modules/__pycache__

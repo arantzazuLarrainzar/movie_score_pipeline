@@ -5,7 +5,15 @@ from typing import Optional
 
 class FileIO:
     """
+    Class responsible for reading and writing files.
+
+    Methods:
+        read_file: this method reads files and transforms the data into bytes.
+        If any error happens, it returns an empty object.
+        write_csv: this method writes down the dataframe object that is passed
+        as a parameter into a csv file.
     """
+    # methods
     def read_file(self, path: str) -> Optional[bytes]:
         """
         This method returns the data that is inside the file in `path` in a
@@ -43,4 +51,10 @@ class FileIO:
             data (pandas.DataFrame): object containing the information to save
             in csv.
         """
-        data.to_csv(path, index=False)
+        try:
+            data.to_csv(path, index=False)
+            logging.info(f"The data has been saved into the CSV file in '{path}'")
+        except PermissionError:
+            # there are no permissions to write in `path`
+            logging.error("There are no permissions to write in "\
+                          "'{}'.".format(path))
