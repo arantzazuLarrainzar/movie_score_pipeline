@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from modules import ConflictSolver
+from modules.conflict_solver import ConflictSolver
 
 
 class TestConflictSolver(unittest.TestCase):

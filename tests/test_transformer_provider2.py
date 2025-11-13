@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from modules import TransformProvider2
+from modules.transforms import TransformProvider2
 
 
 class TestTransformProv2(unittest.TestCase):

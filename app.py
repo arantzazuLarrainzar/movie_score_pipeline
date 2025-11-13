@@ -1,4 +1,4 @@
-from pipeline import DataPipeline
+from modules import DataPipeline
 import pandas as pd
 
 
@@ -15,13 +15,20 @@ if __name__ == "__main__":
     while(cont):
         # query option to execute
         option = input(
-            "Enter the option you want execute, (a) update the database, (b)"\
-            " query the information of a movie or (c) close the application: ")
+            "Enter the option you want to execute:\n   (a) update the database "\
+            "with the data supplied by all the providers\n   (b) update the "\
+            "database with the data given by one supplier\n   (c) query the "\
+            "information of a movie\n   (d) close the application\n")
         if option == "a":
-            # update the database
-            pipe.update()
-            print("The database has been updated.\n")
+            # update the database with the data given by all the providers
+            pipe.run_all_providers()
         elif option == "b":
+            # update the database with the info of one provider
+            provider = input(
+                "Enter the name of the provider [provider1/provider2/"\
+                "provider3]: ")
+            pipe.run_one_provider(provider)
+        elif option == "c":
             # get information of a movie, query title and release year
             title = input("Introduce the title of the movie: ")
             year = input("Introduce the release year of the movie: ")
@@ -37,7 +44,7 @@ if __name__ == "__main__":
                     print()
             except ValueError:
                 print("The introduced year is incorrect, it must be an integer.\n")
-        elif option == "c":
+        elif option == "d":
             # turn off the application
             print("The application is turning off.")
             cont = False

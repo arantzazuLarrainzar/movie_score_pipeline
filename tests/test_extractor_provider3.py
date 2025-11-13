@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from modules import ExtractorProvider3
+from modules.extractors import ExtractorProvider3
 
 
 class TestExtractorProv3(unittest.TestCase):
