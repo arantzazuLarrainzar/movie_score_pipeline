@@ -14,27 +14,53 @@ This application was implemented with the language python and the library used i
 The library `pandas` must be installed for the correct funtionality of the project:
 
 ### Installation
-1. Clone the repo
+1. Clone the repo:
 ```
-git clone https://github.com/arantzazuLarrainzar/movie_score_pipeline.git
+	git clone https://github.com/arantzazuLarrainzar/movie_score_pipeline.git
 ```
-2. Install the `pandas` library
+2. Install the `uv` library to manage the project dependencies:
 ```
-pip install pandas
+	pip install uv
 ```
-3. Enter in the repo and run the following command, the app will start and ask which task to execute
+3. Enter in the repo:
 ```
-cd movie_score_pipeline
-python3 app.py
+	cd movie_score_pipeline
+```
+4. Install the requirements for the app:
+```
+	uv pip install -r pyproject.toml
+```
+5. Start the app and answer which task you want to execute:
+```
+	python3 app.py
 ```
 
 ## Usage
 ```
 >>> python3 app.py
-Enter the option you want execute, (a) update the database, (b) query the information of a movie or (c) close the application: a
-The database has been updated.
+Enter the option you want to execute:
+   (a) update the database with the data supplied by all the providers
+   (b) update the database with the data given by one supplier
+   (c) query the information of a movie
+   (d) close the application
+a
+The database has been updated with the information given by each provider.
 
-Enter the option you want execute, (a) update the database, (b) query the information of a movie or (c) close the application: b
+Enter the option you want to execute:
+   (a) update the database with the data supplied by all the providers
+   (b) update the database with the data given by one supplier
+   (c) query the information of a movie
+   (d) close the application
+b
+Enter the name of the provider [provider1/provider2/provider3]: provider1
+The database has been updated with the information of the provider: provider1.
+
+Enter the option you want to execute:
+   (a) update the database with the data supplied by all the providers
+   (b) update the database with the data given by one supplier
+   (c) query the information of a movie
+   (d) close the application
+c
 Introduce the title of the movie: Inception
 Introduce the release year of the movie: 2010
 
@@ -49,13 +75,23 @@ The film Inception, released in the year 2010, has the following features:
 	marketing_spend_usd: 100000000.0
 	domestic_box_office_gross: 292576195.0
 
-Enter the option you want execute, (a) update the database, (b) query the information of a movie or (c) close the application: b
+Enter the option you want to execute:
+   (a) update the database with the data supplied by all the providers
+   (b) update the database with the data given by one supplier
+   (c) query the information of a movie
+   (d) close the application
+c
 Introduce the title of the movie: Toy Story 2
 Introduce the release year of the movie: 1999
 The film is not in the database
 
-Enter the option you want execute, (a) update the database, (b) query the information of a movie or (c) close the application: c
-The application is turning off.
+Enter the option you want to execute:
+   (a) update the database with the data supplied by all the providers
+   (b) update the database with the data given by one supplier
+   (c) query the information of a movie
+   (d) close the application
+d
+The application will shut down.
 ```
 
 ## Roadmap
