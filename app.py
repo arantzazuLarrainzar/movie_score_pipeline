@@ -22,12 +22,18 @@ if __name__ == "__main__":
         if option == "a":
             # update the database with the data given by all the providers
             pipe.run_all_providers()
+            print(
+                "The database has been updated with the information given by "\
+                "each provider.\n")
         elif option == "b":
             # update the database with the info of one provider
             provider = input(
                 "Enter the name of the provider [provider1/provider2/"\
                 "provider3]: ")
             pipe.run_one_provider(provider)
+            print(
+                "The database has been updated with the information of the "\
+                f"provider: {provider}.\n")
         elif option == "c":
             # get information of a movie, query title and release year
             title = input("Introduce the title of the movie: ")
@@ -46,7 +52,7 @@ if __name__ == "__main__":
                 print("The introduced year is incorrect, it must be an integer.\n")
         elif option == "d":
             # turn off the application
-            print("The application is turning off.")
+            print("The application will shut down.")
             cont = False
         else:
             print("The introduced option is not correct.\n")

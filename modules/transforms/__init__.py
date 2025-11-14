@@ -1,3 +1,4 @@
+from .transform_provider1 import BaseTransform
 from .transform_provider1 import TransformProvider1
 from .transform_provider2 import TransformProvider2
 from .transform_provider3 import TransformProvider3

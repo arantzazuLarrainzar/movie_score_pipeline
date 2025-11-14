@@ -12,10 +12,11 @@ class TransformProvider2(BaseTransform):
     __data_types: Dict[str, str] = {
         "movie_title": "string", "release_year": "uint16",
         "audience_average_score": "float32", "total_audience_ratings": "int32",
-        "domestic_box_office_gross": "int64"
+        "domestic_box_office_gross_usd": "int64"
     }
     __column_map: Dict[str, str] = {
-        "title": "movie_title", "year": "release_year"
+        "title": "movie_title", "year": "release_year",
+        "domestic_box_office_gross": "domestic_box_office_gross_usd"
     }
 
     # constructor

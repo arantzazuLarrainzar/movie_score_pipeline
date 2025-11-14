@@ -42,31 +42,33 @@ class ConflictSolver:
         # and fill values of those columns with the object None
         col_df2 = second_df.columns
         diff_cols = list(set(col_df2) - set(first_df.columns))
+        conflict_cols = [
+            col_name for col_name in second_df.columns
+            if col_name not in diff_cols]
         new_df.loc[:, diff_cols] = None
         # iterate over `second_df`
         for indx in second_df.index:
             # check if values of `second_df` are in `first_df`
             if indx in indx_first_df:
-                # check if there are conflicts
-                for col_name in col_df2:
-                    elem_second_df = second_df.loc[indx, col_name]
-                    if new_df.loc[indx, col_name] is None:
-                        # fill empty spaces with information of the second df
-                        new_df.loc[indx, col_name] = elem_second_df
-                    elif (
-                        elem_second_df is not None and
-                        new_df.loc[indx, col_name] != elem_second_df):
+                # the movie is in first_df
+                # fill values that do not cause conflict
+                new_df.loc[indx, diff_cols] = second_df.loc[indx, diff_cols]
+                # check if there are conflicts in the other columns
+                for col in conflict_cols:
+                    if new_df.loc[indx, col] is None or pd.isna(new_df.loc[indx, col]):
+                        # no conflict, since the element of new_df is empty
+                        new_df.loc[indx, col] = second_df.loc[indx, col]
+                    elif new_df.loc[indx, col] != second_df.loc[indx, col]:
                         # conflict
                         logging.error(
                             "[Conflict solver] There are a conflict with the "\
-                            f"data of film {indx[0]}. This row is deleted as "\
-                            "it is not possible to check which data is correct.")
-                        new_df.drop(indx, axis=0, inplace=True)
+                            f"data of film {indx[0]}. The element that causes"\
+                            " the effect is removed, since it is not possible"\
+                            " to check which data is correct.")
+                        new_df.loc[indx, col] = None
             else:
-                # add the element in `new_df`
-                new_df.loc[indx] = second_df.loc[indx]
-        # set correct datatypes
-        new_df = new_df.astype(second_df.loc[:, diff_cols].dtypes.to_dict())
+                # movie is not in first_df, so add it completely
+                new_df.loc[indx, col_df2] = second_df.loc[indx, :]
         # return the final dataframe with both parameters merged
         logging.info("[Conflict solver] The datasets have been merged.")
         return new_df
@@ -75,10 +77,11 @@ class ConflictSolver:
         self, main_df: pd.DataFrame, dfs: Union[List[pd.DataFrame], pd.DataFrame]
     ) -> pd.DataFrame:
         """"""
-        if isinstance(dfs, str):
-            dfs = [dfs]
-        # different dfs
-        for indx in range(len(dfs)):
-            main_df = self.merge_two_datasets(main_df, dfs[indx])
+        if isinstance(dfs, pd.DataFrame):
+            main_df = self.merge_two_datasets(main_df, dfs)
+        else:
+            # different dfs
+            for indx in range(len(dfs)):
+                main_df = self.merge_two_datasets(main_df, dfs[indx])
         # return merged file
         return main_df

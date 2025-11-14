@@ -10,6 +10,7 @@ from .transforms import TransformProvider2
 from .transforms import TransformProvider3
 from .conflict_solver import ConflictSolver
 # other libraries
+import os.path
 import logging
 import pandas as pd
 import configparser
@@ -33,8 +34,14 @@ class DataPipeline:
         self.config = configparser.ConfigParser()
         self.config.read("./config/config.ini")
         ### pipeline
-        self.current_data = pd.DataFrame(columns=["movie_title", "release_year"]).astype({"movie_title": "string", "release_year": "uint16"})
-        self.current_data.set_index(["movie_title", "release_year"], inplace=True)
+        if os.path.isfile(self.config["output_path"]["output"]):
+            # file exists with previous data
+            self.current_data = pd.read_csv(self.config["output_path"]["output"])
+            self.current_data.set_index(["movie_title", "release_year"], inplace=True)
+        else:
+            # file does not exist
+            self.current_data = pd.DataFrame(columns=["movie_title", "release_year"]).astype({"movie_title": "string", "release_year": "uint16"})
+            self.current_data.set_index(["movie_title", "release_year"], inplace=True)
         self.file_io = FileIO()
         self.extractors = {
             "provider1": ExtractorProvider1(),

@@ -14,10 +14,8 @@ class ExtractorProvider3(BaseExtractor):
     def __init__(self):
         super().__init__(provider_name="Provider3")
     
-    def extract(self, raw_data: Optional[List[bytes]]) -> Optional[List[pd.DataFrame]]:
+    def extract(self, raw_data: List[Optional[bytes]]) -> Optional[List[pd.DataFrame]]:
         # check if raw_data is None, any error has happen
-        if raw_data is None:
-            return None
         if len(raw_data) != 3:
             return None
         # raw_data contains information, turn it into a DataFrame
